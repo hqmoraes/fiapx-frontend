@@ -1,0 +1,13 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Starting build"
+    build:
+      commands:
+        - echo "Building FIAP-X Frontend"
+  artifacts:
+    baseDirectory: .
+    files:
+      - "**/*"

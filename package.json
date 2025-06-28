@@ -1,0 +1,26 @@
+{
+  "name": "fiapx-frontend",
+  "version": "1.0.0",
+  "description": "Frontend da plataforma FIAP X de processamento de vídeos",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "build": "echo 'Static files - no build needed'",
+    "deploy": "aws s3 sync . s3://fiapx-frontend --delete"
+  },
+  "keywords": [
+    "fiap",
+    "video-processing",
+    "frontend",
+    "microservices",
+    "aws",
+    "kubernetes"
+  ],
+  "author": "FIAP X Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hmoraes/fiapx-frontend"
+  },
+  "homepage": "https://fiapx.amplifyapp.com"
+}

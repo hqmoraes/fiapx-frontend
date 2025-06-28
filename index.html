@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIAP X - Plataforma de Processamento de Vídeos</title>
+    <meta name="description" content="Plataforma de processamento de vídeos com microsserviços em Kubernetes">
+    <meta name="keywords" content="FIAP, video processing, microservices, AWS, Kubernetes">
+    <meta name="author" content="FIAP X Team">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>🎬 FIAP X - Video Processing Platform</h1>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <span id="userName">Usuário</span>
+                <button id="logoutBtn" class="btn btn-secondary">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Section -->
+    <section id="loginSection" class="auth-section">
+        <div class="auth-container">
+            <h2>🔐 Acesso à Plataforma</h2>
+            
+            <!-- Login Form -->
+            <div class="auth-form" id="loginForm">
+                <h3>Entrar</h3>
+                <form id="loginFormElement">
+                    <input type="email" id="loginEmail" placeholder="E-mail" required>
+                    <input type="password" id="loginPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+                <p>Não tem conta? <a href="#" id="showRegister">Cadastre-se</a></p>
+            </div>
+
+            <!-- Register Form -->
+            <div class="auth-form" id="registerForm" style="display: none;">
+                <h3>Cadastrar</h3>
+                <form id="registerFormElement">
+                    <input type="text" id="registerName" placeholder="Nome" required>
+                    <input type="email" id="registerEmail" placeholder="E-mail" required>
+                    <input type="password" id="registerPassword" placeholder="Senha" required>
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </form>
+                <p>Já tem conta? <a href="#" id="showLogin">Fazer login</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Section -->
+    <section id="appSection" class="main-content" style="display: none;">
+        <div class="container">
+            
+            <!-- Dashboard -->
+            <div class="dashboard">
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Vídeos Processados</h3>
+                        <span id="totalVideos">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Em Processamento</h3>
+                        <span id="processingVideos">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Armazenamento</h3>
+                        <span id="storageUsed">0 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>📤 Upload de Vídeo</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-form">
+                        <input type="file" id="videoFile" accept="video/*" style="display: none;">
+                        <div class="upload-zone" id="uploadZone">
+                            <div class="upload-icon">📹</div>
+                            <p>Clique ou arraste um vídeo aqui</p>
+                            <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
+                        </div>
+                        <button id="uploadBtn" class="btn btn-primary" style="display: none;">🚀 Processar Vídeo</button>
+                    </div>
+                </div>
+                
+                <!-- Upload Progress -->
+                <div class="progress-section" id="progressSection" style="display: none;">
+                    <h3>⏳ Processando vídeo...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText">Iniciando upload...</p>
+                </div>
+            </div>
+
+            <!-- Videos List -->
+            <div class="videos-section">
+                <h2>📁 Meus Vídeos</h2>
+                <div class="videos-grid" id="videosGrid">
+                    <div class="loading">Carregando vídeos...</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Notifications -->
+    <div id="notifications" class="notifications"></div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

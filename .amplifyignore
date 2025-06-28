@@ -1,0 +1,10 @@
+# Amplify ignore file
+*.zip
+*.sh
+*.md
+amplify-*.json
+debug-*.sh
+setup-*.sh
+MANUAL-*.md
+SETUP-*.md
+AMPLIFY-*.md

@@ -1,0 +1,59 @@
+// Configuração dos endpoints dos microsserviços
+const CONFIG = {
+    // URLs via nginx-ingress com hostNetwork (solução final)
+    AUTH_SERVICE_URL: 'http://api.wecando.click/auth',
+    UPLOAD_SERVICE_URL: 'http://api.wecando.click/upload', 
+    PROCESSING_SERVICE_URL: 'http://api.wecando.click/processing',
+    STORAGE_SERVICE_URL: 'http://api.wecando.click/storage',
+    
+    // URLs NodePort (backup, mas portas filtradas)
+    // AUTH_SERVICE_URL: 'https://auth.wecando.click:31573',
+    // UPLOAD_SERVICE_URL: 'http://107.23.149.199:32159', 
+    // PROCESSING_SERVICE_URL: 'http://107.23.149.199:32382',
+    // STORAGE_SERVICE_URL: 'http://107.23.149.199:31627',
+    
+    // Configurações da aplicação
+    APP_NAME: 'FIAP X - Video Processing Platform',
+    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
+    ALLOWED_VIDEO_TYPES: ['video/mp4', 'video/avi', 'video/mov', 'video/mkv', 'video/webm'],
+    
+    // Configurações de polling para status
+    POLLING_INTERVAL: 5000, // 5 segundos
+    MAX_POLLING_ATTEMPTS: 120, // 10 minutos máximo
+};
+
+// Mensagens de erro padrão
+const ERROR_MESSAGES = {
+    NETWORK_ERROR: 'Erro de conexão. Verifique sua internet.',
+    AUTH_FAILED: 'Falha na autenticação. Verifique suas credenciais.',
+    FILE_TOO_LARGE: `Arquivo muito grande. Máximo: ${CONFIG.MAX_FILE_SIZE / (1024 * 1024)}MB`,
+    INVALID_FILE_TYPE: 'Tipo de arquivo não suportado.',
+    UPLOAD_FAILED: 'Falha no upload do arquivo.',
+    SERVER_ERROR: 'Erro interno do servidor.',
+};
+
+// Mensagens de sucesso
+const SUCCESS_MESSAGES = {
+    LOGIN_SUCCESS: 'Login realizado com sucesso!',
+    REGISTER_SUCCESS: 'Conta criada com sucesso!',
+    UPLOAD_SUCCESS: 'Upload realizado com sucesso!',
+    PROCESSING_STARTED: 'Processamento iniciado!',
+};
+
+// Debug mode
+const DEBUG = true;
+
+// Função de log para debug
+function debugLog(message, data = null) {
+    if (DEBUG) {
+        console.log(`[FIAP-X DEBUG] ${message}`, data || '');
+    }
+}
+
+// Log da configuração
+debugLog('Configuração HTTPS carregada:', {
+    auth: CONFIG.AUTH_SERVICE_URL,
+    upload: CONFIG.UPLOAD_SERVICE_URL,
+    processing: CONFIG.PROCESSING_SERVICE_URL,
+    storage: CONFIG.STORAGE_SERVICE_URL
+});
