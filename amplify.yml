@@ -3,7 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Starting build"
+        - echo "Starting FIAP-X build with fixed IAM role"
     build:
       commands:
         - echo "Building FIAP-X Frontend"
