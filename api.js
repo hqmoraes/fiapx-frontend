@@ -91,7 +91,17 @@ class ApiClient {
     // Validar arquivo de vídeo
     validateVideoFile(file) {
         const validTypes = CONFIG.ALLOWED_VIDEO_TYPES;
-        return validTypes.includes(file.type);
+        debugLog('Validando arquivo:', { 
+            name: file.name, 
+            type: file.type, 
+            size: file.size,
+            validTypes: validTypes 
+        });
+        const isValid = validTypes.includes(file.type);
+        if (!isValid) {
+            debugLog('Arquivo rejeitado - tipo não suportado:', file.type);
+        }
+        return isValid;
     }
 
     // Obter status de processamento

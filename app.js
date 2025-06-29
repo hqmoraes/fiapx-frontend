@@ -295,9 +295,9 @@ class VideoProcessingApp {
         const processingVideosEl = document.getElementById('processingVideos');
         const storageUsedEl = document.getElementById('storageUsed');
 
-        if (totalVideosEl) totalVideosEl.textContent = this.stats.totalVideos || 0;
-        if (processingVideosEl) processingVideosEl.textContent = this.stats.processingVideos || 0;
-        if (storageUsedEl) storageUsedEl.textContent = formatFileSize(this.stats.storageUsed || 0);
+        if (totalVideosEl) totalVideosEl.textContent = this.stats.total_videos || 0;
+        if (processingVideosEl) processingVideosEl.textContent = this.stats.processing || 0;
+        if (storageUsedEl) storageUsedEl.textContent = formatFileSize(this.stats.total_size || 0);
     }
 
     // Carregar vídeos do usuário
@@ -351,11 +351,11 @@ class VideoProcessingApp {
                 </div>
                 <div class="video-actions">
                     ${video.status === 'completed' || video.status === 'ready' ? 
-                        `<button class="btn btn-small btn-download" onclick="app.downloadVideo('${video.id}')">
+                        `<button class="btn btn-small btn-download" onclick="app.downloadVideo('${video.video_id}')">
                             📥 Download
                         </button>` : ''
                     }
-                    <button class="btn btn-small btn-delete" onclick="app.deleteVideo('${video.id}')">
+                    <button class="btn btn-small btn-delete" onclick="app.deleteVideo('${video.video_id}')">
                         🗑️ Deletar
                     </button>
                 </div>
@@ -393,6 +393,8 @@ class VideoProcessingApp {
 
     // Deletar vídeo
     async deleteVideo(videoId) {
+        debugLog('Deletando vídeo', { videoId });
+        
         if (!confirm('Tem certeza que deseja deletar este vídeo?')) {
             return;
         }

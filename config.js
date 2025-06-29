@@ -15,7 +15,20 @@ const CONFIG = {
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
     MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
-    ALLOWED_VIDEO_TYPES: ['video/mp4', 'video/avi', 'video/mov', 'video/mkv', 'video/webm'],
+    ALLOWED_VIDEO_TYPES: [
+        'video/mp4', 
+        'video/avi', 
+        'video/mov', 
+        'video/mkv', 
+        'video/webm',
+        'video/x-matroska',  // .mkv
+        'video/quicktime',   // .mov
+        'video/x-msvideo',   // .avi
+        'video/x-ms-wmv',    // .wmv
+        'video/3gpp',        // .3gp
+        'video/x-flv',       // .flv
+        'application/octet-stream' // fallback para arquivos sem tipo detectado
+    ],
     
     // Configurações de polling para status
     POLLING_INTERVAL: 5000, // 5 segundos
