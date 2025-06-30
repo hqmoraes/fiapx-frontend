@@ -83,8 +83,8 @@ class VideoProcessingApp {
         });
 
         // Botão de upload
-        uploadBtn.addEventListener('click', () => {
-            this.startMultipleUploads();
+        uploadBtn.addEventListener('click', async () => {
+            await this.startMultipleUploads();
         });
 
         // Botão de limpar
@@ -96,11 +96,11 @@ class VideoProcessingApp {
     // Configurar event listeners
     setupEventListeners() {
         // Refresh da lista de vídeos e status da fila
-        setInterval(() => {
+        setInterval(async () => {
             if (authManager.isAuthenticated()) {
-                this.loadUserVideos();
-                this.loadUserStats();
-                this.loadQueueStatus();
+                await this.loadUserVideos();
+                await this.loadUserStats();
+                await this.loadQueueStatus();
             }
         }, 15000); // A cada 15 segundos para monitoramento mais frequente
     }
@@ -525,7 +525,7 @@ class VideoProcessingApp {
             
             const videos = await apiClient.getUserVideos();
             this.videos = videos;
-            this.renderVideos();
+            await this.renderVideos();
             
         } catch (error) {
             debugLog('Erro ao carregar vídeos', error);
@@ -534,7 +534,7 @@ class VideoProcessingApp {
     }
 
     // Renderizar lista de vídeos
-    renderVideos() {
+    async renderVideos() {
         const videosGrid = document.getElementById('videosGrid');
         
         if (!videosGrid) return;
@@ -548,7 +548,20 @@ class VideoProcessingApp {
             return;
         }
 
-        videosGrid.innerHTML = this.videos.map(video => this.renderVideoCard(video)).join('');
+        // Renderizar cards de vídeo de forma assíncrona
+        try {
+            const videoCards = await Promise.all(
+                this.videos.map(video => this.renderVideoCard(video))
+            );
+            videosGrid.innerHTML = videoCards.join('');
+        } catch (error) {
+            debugLog('Erro ao renderizar vídeos', error);
+            videosGrid.innerHTML = `
+                <div class="loading">
+                    <p>Erro ao carregar vídeos. Tente novamente.</p>
+                </div>
+            `;
+        }
     }
 
     // Renderizar card de vídeo

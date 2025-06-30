@@ -244,21 +244,48 @@ class ApiClient {
                 headers: this.getHeaders()
             });
 
-            if (!response.ok) {
-                throw new Error('Erro ao obter status da fila');
+            if (response.ok) {
+                const data = await response.json();
+                debugLog('Status da fila', data);
+                return data;
+            } else {
+                // Se API não existir, retornar dados mock baseados em estatísticas reais
+                debugLog('API de fila não disponível, usando dados mock');
+                return this.getMockQueueStatus();
             }
-
-            const data = await response.json();
-            debugLog('Status da fila', data);
-            return data;
 
         } catch (error) {
             debugLog('Erro ao obter status da fila', error);
             // Retornar dados mock se não conseguir obter da API
+            return this.getMockQueueStatus();
+        }
+    }
+
+    // Dados mock para status da fila baseados em estatísticas reais
+    async getMockQueueStatus() {
+        try {
+            // Obter estatísticas reais para estimar fila
+            const stats = await this.getUserStats();
+            const videos = await this.getUserVideos();
+            
+            const processingCount = stats.processing || 0;
+            const pendingVideos = videos.videos ? videos.videos.filter(v => 
+                v.status === 'pending' || v.status === 'uploaded' || v.status === 'processing'
+            ).length : 0;
+            
+            return {
+                queue_length: Math.max(0, pendingVideos - processingCount),
+                processing_count: processingCount,
+                videos_in_queue: pendingVideos,
+                estimated_wait_time: Math.max(0, pendingVideos - processingCount) * 90 // 90s por vídeo
+            };
+        } catch (error) {
+            debugLog('Erro ao obter dados mock da fila', error);
             return {
                 queue_length: 0,
                 processing_count: 0,
-                videos_in_queue: []
+                videos_in_queue: 0,
+                estimated_wait_time: 0
             };
         }
     }
@@ -270,17 +297,39 @@ class ApiClient {
                 headers: this.getHeaders()
             });
 
-            if (!response.ok) {
-                throw new Error('Erro ao obter posição na fila');
+            if (response.ok) {
+                const data = await response.json();
+                debugLog('Posição na fila', data);
+                return data;
+            } else {
+                // Se API não existir, calcular posição mock
+                return this.getMockVideoPosition(videoId);
             }
-
-            const data = await response.json();
-            debugLog('Posição na fila', data);
-            return data;
 
         } catch (error) {
             debugLog('Erro ao obter posição na fila', error);
             // Retornar dados mock se não conseguir obter da API
+            return this.getMockVideoPosition(videoId);
+        }
+    }
+
+    // Calcular posição mock na fila baseada em dados reais
+    async getMockVideoPosition(videoId) {
+        try {
+            const videos = await this.getUserVideos();
+            const pendingVideos = videos.videos ? videos.videos.filter(v => 
+                v.status === 'pending' || v.status === 'uploaded'
+            ).sort((a, b) => new Date(a.created_at || a.upload_time) - new Date(b.created_at || b.upload_time)) : [];
+            
+            const videoIndex = pendingVideos.findIndex(v => v.video_id === videoId);
+            const position = videoIndex >= 0 ? videoIndex + 1 : 0;
+            
+            return {
+                position: position,
+                estimated_wait_time: position * 90 // 90 segundos por vídeo
+            };
+        } catch (error) {
+            debugLog('Erro ao calcular posição mock', error);
             return {
                 position: 0,
                 estimated_wait_time: 0
