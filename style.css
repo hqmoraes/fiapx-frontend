@@ -237,6 +237,84 @@ body {
     color: #999 !important;
 }
 
+/* Selected Files */
+.selected-files {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e1e8ed;
+}
+
+.selected-file:last-child {
+    margin-bottom: 0;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-icon {
+    font-size: 1.2rem;
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.file-size {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.remove-file {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-file:hover {
+    background: #c82333;
+}
+
+.upload-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.upload-buttons .btn {
+    flex: 1;
+}
+
 /* Progress Section */
 .progress-section {
     background: #f8f9fa;
@@ -249,6 +327,54 @@ body {
     color: #333;
     margin-bottom: 1rem;
     text-align: center;
+}
+
+.upload-progress-item {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e1e8ed;
+}
+
+.upload-progress-item:last-child {
+    margin-bottom: 0;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.progress-filename {
+    font-weight: 600;
+    color: #333;
+}
+
+.progress-status {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+    color: white;
+}
+
+.progress-status.uploading {
+    background: #007bff;
+}
+
+.progress-status.processing {
+    background: #ffc107;
+    color: #333;
+}
+
+.progress-status.completed {
+    background: #28a745;
+}
+
+.progress-status.error {
+    background: #dc3545;
 }
 
 .progress-bar {
@@ -364,56 +490,72 @@ body {
     background: #c82333;
 }
 
-/* Loading */
-.loading {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    padding: 2rem;
-}
-
-/* Notifications */
-.notifications {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.notification {
+/* Queue Section */
+.queue-section {
     background: white;
-    border-radius: 10px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1rem;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    min-width: 300px;
-    animation: slideIn 0.3s ease;
 }
 
-.notification.success {
-    border-left: 4px solid #28a745;
+.queue-section h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
 }
 
-.notification.error {
-    border-left: 4px solid #dc3545;
+.queue-info {
+    display: flex;
+    justify-content: center;
 }
 
-.notification.info {
-    border-left: 4px solid #17a2b8;
+.queue-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+.queue-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
-/* Responsive */
+.queue-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+}
+
+.queue-label {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Queue position in video cards */
+.queue-position {
+    background: #e8f4f8;
+    border: 1px solid #b8e6f0;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #2c5282;
+}
+
+.queue-icon {
+    font-size: 1rem;
+}
+
 @media (max-width: 768px) {
     .header .container {
         flex-direction: column;
@@ -436,6 +578,14 @@ body {
 
     .video-actions {
         flex-direction: column;
+    }
+
+    .queue-stats {
+        gap: 2rem;
+    }
+    
+    .queue-number {
+        font-size: 2rem;
     }
 }
 

@@ -237,6 +237,57 @@ class ApiClient {
         }
     }
 
+    // Obter status da fila de processamento
+    async getQueueStatus() {
+        try {
+            const response = await fetch(`${CONFIG.PROCESSING_SERVICE_URL}/queue/status`, {
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao obter status da fila');
+            }
+
+            const data = await response.json();
+            debugLog('Status da fila', data);
+            return data;
+
+        } catch (error) {
+            debugLog('Erro ao obter status da fila', error);
+            // Retornar dados mock se não conseguir obter da API
+            return {
+                queue_length: 0,
+                processing_count: 0,
+                videos_in_queue: []
+            };
+        }
+    }
+
+    // Obter posição de um vídeo na fila
+    async getVideoQueuePosition(videoId) {
+        try {
+            const response = await fetch(`${CONFIG.PROCESSING_SERVICE_URL}/queue/position/${videoId}`, {
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error('Erro ao obter posição na fila');
+            }
+
+            const data = await response.json();
+            debugLog('Posição na fila', data);
+            return data;
+
+        } catch (error) {
+            debugLog('Erro ao obter posição na fila', error);
+            // Retornar dados mock se não conseguir obter da API
+            return {
+                position: 0,
+                estimated_wait_time: 0
+            };
+        }
+    }
+
     // Testar conectividade com os serviços
     async testServices() {
         const services = [

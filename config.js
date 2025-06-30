@@ -14,7 +14,7 @@ const CONFIG = {
     
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
-    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB
+    MAX_FILE_SIZE: 2 * 1024 * 1024, // 2MB - Limite reduzido para teste de paralelismo
     ALLOWED_VIDEO_TYPES: [
         'video/mp4', 
         'video/avi', 
