@@ -1,23 +1,23 @@
-// Configuração para Kubernetes - NodePorts para acesso externo do navegador
+// Configuração para Kubernetes - Usando Ingress para acesso externo
 const CONFIG = {
-    // URLs dos serviços usando NodePorts para acesso do navegador
+    // URLs dos serviços usando Ingress
     API: {
-        AUTH_SERVICE: 'http://worker.wecando.click:31404',        // auth-service NodePort
-        UPLOAD_SERVICE: 'http://worker.wecando.click:32159',      // upload-service NodePort  
-        PROCESSING_SERVICE: 'http://worker.wecando.click:32382',  // processing-service NodePort
-        STORAGE_SERVICE: 'http://worker.wecando.click:31627'      // storage-service NodePort
+        AUTH_SERVICE: 'https://api.wecando.click/auth',
+        UPLOAD_SERVICE: 'https://api.wecando.click/upload',
+        PROCESSING_SERVICE: 'https://api.wecando.click/processing',
+        STORAGE_SERVICE: 'https://api.wecando.click/storage'
     },
     
     // URLs para compatibilidade com auth.js e api.js
-    AUTH_SERVICE_URL: 'http://worker.wecando.click:31404',
-    UPLOAD_SERVICE_URL: 'http://worker.wecando.click:32159',
-    PROCESSING_SERVICE_URL: 'http://worker.wecando.click:32382',
-    STORAGE_SERVICE_URL: 'http://worker.wecando.click:31627',
+    AUTH_SERVICE_URL: 'https://api.wecando.click/auth',
+    UPLOAD_SERVICE_URL: 'https://api.wecando.click/upload',
+    PROCESSING_SERVICE_URL: 'https://api.wecando.click/processing',
+    STORAGE_SERVICE_URL: 'https://api.wecando.click/storage',
     
     // Endpoints específicos
     ENDPOINTS: {
-        LOGIN: '/auth/login',
-        REGISTER: '/auth/register',
+        LOGIN: '/login',
+        REGISTER: '/register',
         UPLOAD: '/upload',
         PROCESS: '/process',
         STATUS: '/status',

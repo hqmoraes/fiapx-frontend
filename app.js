@@ -294,10 +294,12 @@ class VideoProcessingApp {
         const totalVideosEl = document.getElementById('totalVideos');
         const processingVideosEl = document.getElementById('processingVideos');
         const storageUsedEl = document.getElementById('storageUsed');
+        const totalFramesEl = document.getElementById('totalFrames');
 
         if (totalVideosEl) totalVideosEl.textContent = this.stats.total_videos || 0;
         if (processingVideosEl) processingVideosEl.textContent = this.stats.processing || 0;
         if (storageUsedEl) storageUsedEl.textContent = formatFileSize(this.stats.total_size || 0);
+        if (totalFramesEl) totalFramesEl.textContent = this.stats.total_frames || 0;
     }
 
     // Carregar vídeos do usuário
@@ -345,7 +347,7 @@ class VideoProcessingApp {
                     <span class="video-status ${statusClass}">${readableStatus}</span>
                 </div>
                 <div class="video-info">
-                    <p>Tamanho: ${formatFileSize(video.size || 0)}</p>
+                    <p>Tamanho: ${formatFileSize(video.zip_size || 0)}</p>
                     <p>Enviado: ${formatDate(video.created_at || video.upload_time || new Date())}</p>
                     ${video.processed_at ? `<p>Processado: ${formatDate(video.processed_at)}</p>` : ''}
                 </div>

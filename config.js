@@ -1,10 +1,10 @@
 // Configuração dos endpoints dos microsserviços
 const CONFIG = {
-    // URLs via nginx-ingress com hostNetwork (solução final)
-    AUTH_SERVICE_URL: 'http://api.wecando.click/auth',
-    UPLOAD_SERVICE_URL: 'http://api.wecando.click/upload', 
-    PROCESSING_SERVICE_URL: 'http://api.wecando.click/processing',
-    STORAGE_SERVICE_URL: 'http://api.wecando.click/storage',
+    // URLs via NodePort (funcionando para o frontend atual)
+    AUTH_SERVICE_URL: 'http://worker.wecando.click:31404',
+    UPLOAD_SERVICE_URL: 'http://worker.wecando.click:32159', 
+    PROCESSING_SERVICE_URL: 'http://worker.wecando.click:32382',
+    STORAGE_SERVICE_URL: 'http://worker.wecando.click:31627',
     
     // URLs NodePort (backup, mas portas filtradas)
     // AUTH_SERVICE_URL: 'https://auth.wecando.click:31573',
