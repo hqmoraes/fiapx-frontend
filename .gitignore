@@ -19,6 +19,9 @@ build/
 *.swp
 *.swo
 
+# Context files (not for version control)
+.service-context.md
+
 # OS files
 .DS_Store
 Thumbs.db
