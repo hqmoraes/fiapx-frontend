@@ -29,7 +29,7 @@ const CONFIG = {
     MAX_POLLING_ATTEMPTS: 120, // 10 minutos máximo
     
     // Configurações de produção
-    DEBUG: true,
+    DEBUG: true, // Ativado para debugging
     ENVIRONMENT: 'production',
     VERSION: '2.4.0',
     

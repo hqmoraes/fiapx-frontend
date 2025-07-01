@@ -20,11 +20,13 @@ class VideoProcessingApp {
     // Inicializar aplicação
     async init() {
         try {
-            debugLog('Inicializando aplicação');
+            debugLog('=== INICIANDO APLICAÇÃO FIAP-X ===');
+            debugLog('Configuração atual', CONFIG);
             
             this.setupUploadArea();
             this.setupEventListeners();
             
+            debugLog('Carregando dados iniciais...');
             await this.loadUserStats();
             await this.loadUserVideos();
             await this.loadQueueStatus();
@@ -32,11 +34,11 @@ class VideoProcessingApp {
             // Testar conectividade dos serviços
             await this.testServicesConnectivity();
             
-            debugLog('Aplicação inicializada com sucesso');
+            debugLog('=== APLICAÇÃO INICIALIZADA COM SUCESSO ===');
             
         } catch (error) {
-            debugLog('Erro na inicialização', error);
-            showNotification('Erro ao inicializar aplicação', 'error');
+            debugLog('=== ERRO NA INICIALIZAÇÃO ===', error);
+            showNotification('Erro ao inicializar aplicação: ' + error.message, 'error');
         }
     }
 
@@ -496,12 +498,27 @@ class VideoProcessingApp {
     // Carregar estatísticas do usuário
     async loadUserStats() {
         try {
+            debugLog('Carregando estatísticas do usuário');
+            
             const stats = await apiClient.getUserStats();
-            this.stats = stats;
+            this.stats = stats || {};
+            debugLog('Estatísticas carregadas', this.stats);
+            
             this.updateStatsDisplay();
             
         } catch (error) {
             debugLog('Erro ao carregar estatísticas', error);
+            
+            // Em caso de erro, usar estatísticas vazias mas válidas
+            this.stats = {
+                total_videos: 0,
+                processing: 0,
+                completed: 0,
+                total_size: 0,
+                total_frames: 0
+            };
+            
+            this.updateStatsDisplay();
         }
     }
 
@@ -513,42 +530,68 @@ class VideoProcessingApp {
         const processingVideosEl = document.getElementById('processingVideos');
         const storageUsedEl = document.getElementById('storageUsed');
         const totalFramesEl = document.getElementById('totalFrames');
+        const queueLengthEl = document.getElementById('queueLength');
 
-        // Valores das estatísticas
-        const totalVideos = this.stats.total_videos || 0;
-        const processingVideos = this.stats.processing || 0;
-        const storageUsed = this.stats.total_size || 0;
-        const totalFrames = this.stats.total_frames || 0;
+        // Verificar se os elementos existem
+        debugLog('Elementos das estatísticas encontrados:', {
+            totalVideos: !!totalVideosEl,
+            processingVideos: !!processingVideosEl,
+            storageUsed: !!storageUsedEl,
+            totalFrames: !!totalFramesEl,
+            queueLength: !!queueLengthEl
+        });
+
+        // Valores das estatísticas - usar nomes consistentes
+        const totalVideos = this.stats.total_videos || this.stats.totalVideos || 0;
+        const processingVideos = this.stats.processing || this.stats.processingVideos || 0;
+        const storageUsed = this.stats.total_size || this.stats.storageUsed || 0;
+        const totalFrames = this.stats.total_frames || this.stats.totalFrames || 0;
+
+        debugLog('Valores a serem exibidos:', {
+            totalVideos,
+            processingVideos,
+            storageUsed,
+            totalFrames
+        });
 
         // Atualizar elementos
         if (totalVideosEl) {
             totalVideosEl.textContent = totalVideos;
             debugLog('Atualizando totalVideos', totalVideos);
+        } else {
+            debugLog('Elemento totalVideos não encontrado');
         }
         
         if (processingVideosEl) {
             processingVideosEl.textContent = processingVideos;
             debugLog('Atualizando processingVideos', processingVideos);
+        } else {
+            debugLog('Elemento processingVideos não encontrado');
         }
         
         if (storageUsedEl) {
             const formattedSize = formatFileSize(storageUsed);
             storageUsedEl.textContent = formattedSize;
             debugLog('Atualizando storageUsed', formattedSize);
+        } else {
+            debugLog('Elemento storageUsed não encontrado');
         }
         
         if (totalFramesEl) {
             totalFramesEl.textContent = totalFrames;
             debugLog('Atualizando totalFrames', totalFrames);
+        } else {
+            debugLog('Elemento totalFrames não encontrado');
         }
 
-        // Verificar se elementos existem
-        debugLog('Elementos das estatísticas encontrados:', {
-            totalVideos: !!totalVideosEl,
-            processingVideos: !!processingVideosEl,
-            storageUsed: !!storageUsedEl,
-            totalFrames: !!totalFramesEl
-        });
+        // Atualizar também o queueLength que aparece nas estatísticas
+        if (queueLengthEl) {
+            const currentQueueLength = this.queueStatus?.queue_length || 0;
+            queueLengthEl.textContent = currentQueueLength;
+            debugLog('Atualizando queueLength nas stats', currentQueueLength);
+        } else {
+            debugLog('Elemento queueLength não encontrado');
+        }
     }
 
     // Carregar vídeos do usuário
@@ -557,12 +600,30 @@ class VideoProcessingApp {
             debugLog('Carregando vídeos do usuário');
             
             const videos = await apiClient.getUserVideos();
-            this.videos = videos;
+            this.videos = videos || [];
+            debugLog('Vídeos carregados', { count: this.videos.length, videos: this.videos });
+            
             await this.renderVideos();
             
         } catch (error) {
             debugLog('Erro ao carregar vídeos', error);
-            showNotification('Erro ao carregar lista de vídeos', 'error');
+            
+            // Se for erro de autenticação, mostrar mensagem específica
+            if (error.message.includes('autenticação')) {
+                showNotification('Sessão expirada. Faça login novamente.', 'error');
+                setTimeout(() => {
+                    authManager.logout();
+                }, 2000);
+            } else {
+                showNotification('Erro ao carregar lista de vídeos. Tentando novamente...', 'warning');
+                // Tentar novamente após 3 segundos
+                setTimeout(() => {
+                    this.loadUserVideos();
+                }, 3000);
+            }
+            
+            // Garantir que videos seja sempre um array
+            this.videos = [];
         }
     }
 
@@ -703,11 +764,29 @@ class VideoProcessingApp {
         try {
             debugLog('Carregando status da fila');
             
-            this.queueStatus = await apiClient.getQueueStatus();
+            const queueStatus = await apiClient.getQueueStatus();
+            this.queueStatus = queueStatus || {
+                queue_length: 0,
+                processing_count: 0,
+                videos_in_queue: 0,
+                estimated_wait_time: 0
+            };
+            
+            debugLog('Status da fila carregado', this.queueStatus);
             this.updateQueueDisplay();
             
         } catch (error) {
             debugLog('Erro ao carregar status da fila', error);
+            
+            // Em caso de erro, usar valores padrão
+            this.queueStatus = {
+                queue_length: 0,
+                processing_count: 0,
+                videos_in_queue: 0,
+                estimated_wait_time: 0
+            };
+            
+            this.updateQueueDisplay();
         }
     }
 
@@ -718,44 +797,49 @@ class VideoProcessingApp {
         const activeProcessingEl = document.getElementById('activeProcessing');
         const waitingInQueueEl = document.getElementById('waitingInQueue');
         const estimatedWaitEl = document.getElementById('estimatedWait');
-        const queueLengthEl = document.getElementById('queueLength');
+
+        // Verificar se os elementos existem
+        debugLog('Elementos da fila encontrados:', {
+            activeProcessing: !!activeProcessingEl,
+            waitingInQueue: !!waitingInQueueEl,
+            estimatedWait: !!estimatedWaitEl
+        });
 
         // Valores da fila
-        const processingCount = this.queueStatus.processing_count || 0;
-        const queueLength = this.queueStatus.queue_length || 0;
-        const videosInQueue = this.queueStatus.videos_in_queue || 0;
+        const processingCount = this.queueStatus?.processing_count || 0;
+        const queueLength = this.queueStatus?.queue_length || 0;
+        const estimatedWaitTime = this.queueStatus?.estimated_wait_time || 0;
+
+        debugLog('Valores da fila a serem exibidos:', {
+            processingCount,
+            queueLength,
+            estimatedWaitTime
+        });
 
         // Atualizar elementos com valores
         if (activeProcessingEl) {
             activeProcessingEl.textContent = processingCount;
             debugLog('Atualizando activeProcessing', processingCount);
+        } else {
+            debugLog('Elemento activeProcessing não encontrado');
         }
         
         if (waitingInQueueEl) {
             waitingInQueueEl.textContent = queueLength;
             debugLog('Atualizando waitingInQueue', queueLength);
-        }
-        
-        if (queueLengthEl) {
-            queueLengthEl.textContent = queueLength;
-            debugLog('Atualizando queueLength', queueLength);
+        } else {
+            debugLog('Elemento waitingInQueue não encontrado');
         }
         
         // Calcular tempo estimado (assumindo 1.5 minutos por vídeo)
-        const estimatedMinutes = Math.ceil(queueLength * 1.5);
+        const estimatedMinutes = Math.ceil(estimatedWaitTime / 60);
         if (estimatedWaitEl) {
             const timeText = estimatedMinutes > 0 ? `${estimatedMinutes} min` : '0 min';
             estimatedWaitEl.textContent = timeText;
             debugLog('Atualizando estimatedWait', timeText);
+        } else {
+            debugLog('Elemento estimatedWait não encontrado');
         }
-
-        // Verificar se elementos existem
-        debugLog('Elementos da fila encontrados:', {
-            activeProcessing: !!activeProcessingEl,
-            waitingInQueue: !!waitingInQueueEl,
-            estimatedWait: !!estimatedWaitEl,
-            queueLength: !!queueLengthEl
-        });
     }
 
     // Obter posição de um vídeo na fila
