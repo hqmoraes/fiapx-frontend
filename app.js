@@ -507,15 +507,48 @@ class VideoProcessingApp {
 
     // Atualizar exibição das estatísticas
     updateStatsDisplay() {
+        debugLog('Atualizando display das estatísticas', this.stats);
+        
         const totalVideosEl = document.getElementById('totalVideos');
         const processingVideosEl = document.getElementById('processingVideos');
         const storageUsedEl = document.getElementById('storageUsed');
         const totalFramesEl = document.getElementById('totalFrames');
 
-        if (totalVideosEl) totalVideosEl.textContent = this.stats.total_videos || 0;
-        if (processingVideosEl) processingVideosEl.textContent = this.stats.processing || 0;
-        if (storageUsedEl) storageUsedEl.textContent = formatFileSize(this.stats.total_size || 0);
-        if (totalFramesEl) totalFramesEl.textContent = this.stats.total_frames || 0;
+        // Valores das estatísticas
+        const totalVideos = this.stats.total_videos || 0;
+        const processingVideos = this.stats.processing || 0;
+        const storageUsed = this.stats.total_size || 0;
+        const totalFrames = this.stats.total_frames || 0;
+
+        // Atualizar elementos
+        if (totalVideosEl) {
+            totalVideosEl.textContent = totalVideos;
+            debugLog('Atualizando totalVideos', totalVideos);
+        }
+        
+        if (processingVideosEl) {
+            processingVideosEl.textContent = processingVideos;
+            debugLog('Atualizando processingVideos', processingVideos);
+        }
+        
+        if (storageUsedEl) {
+            const formattedSize = formatFileSize(storageUsed);
+            storageUsedEl.textContent = formattedSize;
+            debugLog('Atualizando storageUsed', formattedSize);
+        }
+        
+        if (totalFramesEl) {
+            totalFramesEl.textContent = totalFrames;
+            debugLog('Atualizando totalFrames', totalFrames);
+        }
+
+        // Verificar se elementos existem
+        debugLog('Elementos das estatísticas encontrados:', {
+            totalVideos: !!totalVideosEl,
+            processingVideos: !!processingVideosEl,
+            storageUsed: !!storageUsedEl,
+            totalFrames: !!totalFramesEl
+        });
     }
 
     // Carregar vídeos do usuário
@@ -680,20 +713,49 @@ class VideoProcessingApp {
 
     // Atualizar exibição do status da fila
     updateQueueDisplay() {
+        debugLog('Atualizando display da fila', this.queueStatus);
+        
         const activeProcessingEl = document.getElementById('activeProcessing');
         const waitingInQueueEl = document.getElementById('waitingInQueue');
         const estimatedWaitEl = document.getElementById('estimatedWait');
         const queueLengthEl = document.getElementById('queueLength');
 
-        if (activeProcessingEl) activeProcessingEl.textContent = this.queueStatus.processing_count || 0;
-        if (waitingInQueueEl) waitingInQueueEl.textContent = this.queueStatus.queue_length || 0;
-        if (queueLengthEl) queueLengthEl.textContent = this.queueStatus.queue_length || 0;
-        
-        // Calcular tempo estimado (assumindo 1 minuto por vídeo)
-        const estimatedMinutes = Math.ceil((this.queueStatus.queue_length || 0) * 1.5);
-        if (estimatedWaitEl) {
-            estimatedWaitEl.textContent = estimatedMinutes > 0 ? `${estimatedMinutes} min` : '0 min';
+        // Valores da fila
+        const processingCount = this.queueStatus.processing_count || 0;
+        const queueLength = this.queueStatus.queue_length || 0;
+        const videosInQueue = this.queueStatus.videos_in_queue || 0;
+
+        // Atualizar elementos com valores
+        if (activeProcessingEl) {
+            activeProcessingEl.textContent = processingCount;
+            debugLog('Atualizando activeProcessing', processingCount);
         }
+        
+        if (waitingInQueueEl) {
+            waitingInQueueEl.textContent = queueLength;
+            debugLog('Atualizando waitingInQueue', queueLength);
+        }
+        
+        if (queueLengthEl) {
+            queueLengthEl.textContent = queueLength;
+            debugLog('Atualizando queueLength', queueLength);
+        }
+        
+        // Calcular tempo estimado (assumindo 1.5 minutos por vídeo)
+        const estimatedMinutes = Math.ceil(queueLength * 1.5);
+        if (estimatedWaitEl) {
+            const timeText = estimatedMinutes > 0 ? `${estimatedMinutes} min` : '0 min';
+            estimatedWaitEl.textContent = timeText;
+            debugLog('Atualizando estimatedWait', timeText);
+        }
+
+        // Verificar se elementos existem
+        debugLog('Elementos da fila encontrados:', {
+            activeProcessing: !!activeProcessingEl,
+            waitingInQueue: !!waitingInQueueEl,
+            estimatedWait: !!estimatedWaitEl,
+            queueLength: !!queueLengthEl
+        });
     }
 
     // Obter posição de um vídeo na fila

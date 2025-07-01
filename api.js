@@ -264,21 +264,44 @@ class ApiClient {
     // Dados mock para status da fila baseados em estatísticas reais
     async getMockQueueStatus() {
         try {
+            debugLog('Obtendo dados mock da fila');
+            
             // Obter estatísticas reais para estimar fila
             const stats = await this.getUserStats();
             const videos = await this.getUserVideos();
             
-            const processingCount = stats.processing || 0;
-            const pendingVideos = videos.videos ? videos.videos.filter(v => 
-                v.status === 'pending' || v.status === 'uploaded' || v.status === 'processing'
-            ).length : 0;
+            debugLog('Stats obtidas para mock', stats);
+            debugLog('Vídeos obtidos para mock', videos);
             
-            return {
-                queue_length: Math.max(0, pendingVideos - processingCount),
-                processing_count: processingCount,
-                videos_in_queue: pendingVideos,
-                estimated_wait_time: Math.max(0, pendingVideos - processingCount) * 90 // 90s por vídeo
+            const processingCount = stats.processing || 0;
+            
+            // Contar vídeos em diferentes estados
+            let pendingVideos = 0;
+            let processingVideos = 0;
+            
+            if (videos.videos && Array.isArray(videos.videos)) {
+                pendingVideos = videos.videos.filter(v => 
+                    v.status === 'pending' || v.status === 'uploaded'
+                ).length;
+                
+                processingVideos = videos.videos.filter(v => 
+                    v.status === 'processing'
+                ).length;
+            }
+            
+            const queueLength = Math.max(0, pendingVideos);
+            const totalProcessing = Math.max(processingVideos, processingCount);
+            
+            const mockData = {
+                queue_length: queueLength,
+                processing_count: totalProcessing,
+                videos_in_queue: pendingVideos + processingVideos,
+                estimated_wait_time: queueLength * 90 // 90s por vídeo
             };
+            
+            debugLog('Dados mock da fila calculados', mockData);
+            return mockData;
+            
         } catch (error) {
             debugLog('Erro ao obter dados mock da fila', error);
             return {

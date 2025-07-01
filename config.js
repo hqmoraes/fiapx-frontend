@@ -1,20 +1,14 @@
-// Configuração dos endpoints dos microsserviços
+// Configuração HTTPS para produção - fiapx.wecando.click
 const CONFIG = {
-    // URLs via NodePort (funcionando para o frontend atual)
-    AUTH_SERVICE_URL: 'http://worker.wecando.click:31404',
-    UPLOAD_SERVICE_URL: 'http://worker.wecando.click:32159', 
-    PROCESSING_SERVICE_URL: 'http://worker.wecando.click:32382',
-    STORAGE_SERVICE_URL: 'http://worker.wecando.click:31627',
-    
-    // URLs NodePort (backup, mas portas filtradas)
-    // AUTH_SERVICE_URL: 'https://auth.wecando.click:31573',
-    // UPLOAD_SERVICE_URL: 'http://107.23.149.199:32159', 
-    // PROCESSING_SERVICE_URL: 'http://107.23.149.199:32382',
-    // STORAGE_SERVICE_URL: 'http://107.23.149.199:31627',
+    // URLs HTTPS via Ingress (produção)
+    AUTH_SERVICE_URL: 'https://api.wecando.click/auth',
+    UPLOAD_SERVICE_URL: 'https://api.wecando.click/upload', 
+    PROCESSING_SERVICE_URL: 'https://api.wecando.click/processing',
+    STORAGE_SERVICE_URL: 'https://api.wecando.click/storage',
     
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
-    MAX_FILE_SIZE: 2 * 1024 * 1024, // 2MB - Limite reduzido para teste de paralelismo
+    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB para produção
     ALLOWED_VIDEO_TYPES: [
         'video/mp4', 
         'video/avi', 
@@ -33,6 +27,15 @@ const CONFIG = {
     // Configurações de polling para status
     POLLING_INTERVAL: 5000, // 5 segundos
     MAX_POLLING_ATTEMPTS: 120, // 10 minutos máximo
+    
+    // Configurações de produção
+    DEBUG: true,
+    ENVIRONMENT: 'production',
+    VERSION: '2.4.0',
+    
+    // URLs base para compatibility
+    API_BASE_URL: 'https://api.wecando.click',
+    FRONTEND_URL: 'https://fiapx.wecando.click'
 };
 
 // Mensagens de erro padrão
@@ -43,22 +46,22 @@ const ERROR_MESSAGES = {
     INVALID_FILE_TYPE: 'Tipo de arquivo não suportado.',
     UPLOAD_FAILED: 'Falha no upload do arquivo.',
     SERVER_ERROR: 'Erro interno do servidor.',
+    SSL_ERROR: 'Erro de certificado SSL. Tente novamente.',
+    CORS_ERROR: 'Erro de CORS. Contate o administrador.',
 };
 
 // Mensagens de sucesso
 const SUCCESS_MESSAGES = {
     LOGIN_SUCCESS: 'Login realizado com sucesso!',
-    REGISTER_SUCCESS: 'Conta criada com sucesso!',
+    REGISTER_SUCCESS: 'Registro realizado com sucesso!',
     UPLOAD_SUCCESS: 'Upload realizado com sucesso!',
-    PROCESSING_STARTED: 'Processamento iniciado!',
+    LOGOUT_SUCCESS: 'Logout realizado com sucesso!',
+    PROCESSING_COMPLETE: 'Processamento concluído!',
 };
 
-// Debug mode
-const DEBUG = true;
-
-// Função de log para debug
+// Debug logging (apenas em desenvolvimento)
 function debugLog(message, data = null) {
-    if (DEBUG) {
+    if (CONFIG.DEBUG) {
         console.log(`[FIAP-X DEBUG] ${message}`, data || '');
     }
 }
@@ -68,5 +71,19 @@ debugLog('Configuração HTTPS carregada:', {
     auth: CONFIG.AUTH_SERVICE_URL,
     upload: CONFIG.UPLOAD_SERVICE_URL,
     processing: CONFIG.PROCESSING_SERVICE_URL,
-    storage: CONFIG.STORAGE_SERVICE_URL
+    storage: CONFIG.STORAGE_SERVICE_URL,
+    environment: CONFIG.ENVIRONMENT,
+    version: CONFIG.VERSION
 });
+
+// Verificar se está rodando em HTTPS
+if (typeof window !== 'undefined') {
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        console.warn('⚠️ Aplicação deve ser servida via HTTPS em produção');
+    }
+}
+
+// Exportar configuração
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES };
+}
