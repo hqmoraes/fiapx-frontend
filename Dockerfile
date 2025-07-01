@@ -7,7 +7,7 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy frontend files
 COPY index.html /usr/share/nginx/html/
 COPY style.css /usr/share/nginx/html/
-COPY config.js /usr/share/nginx/html/
+COPY config-https.js /usr/share/nginx/html/config.js
 COPY auth.js /usr/share/nginx/html/
 COPY api.js /usr/share/nginx/html/
 COPY app.js /usr/share/nginx/html/
