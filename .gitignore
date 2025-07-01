@@ -35,12 +35,25 @@ Thumbs.db
 *.tar.gz
 
 # Scripts with secrets
-*-token*
+*-token*  
 *-secret*
+*credentials*
+*_credentials*
+*-credentials*
+*.pem
+*.key
+*.crt
+keyPrincipal*
+*keyPrincipal*
 debug-*.sh
 setup-*.sh
 *-permissions-*.json
 *-trust-*.json
+
+# AWS and SES credentials
+*aws-credentials*
+*ses-credentials*
+*smtp-credentials*
 
 # Documentation with sensitive info
 AMPLIFY-*.md
