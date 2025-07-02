@@ -762,9 +762,12 @@ class VideoProcessingApp {
     // Carregar status da fila
     async loadQueueStatus() {
         try {
-            debugLog('Carregando status da fila');
+            debugLog('=== CARREGANDO STATUS DA FILA ===');
+            debugLog('URL do Processing Service:', CONFIG.PROCESSING_SERVICE_URL);
             
             const queueStatus = await apiClient.getQueueStatus();
+            debugLog('Status da fila recebido:', queueStatus);
+            
             this.queueStatus = queueStatus || {
                 queue_length: 0,
                 processing_count: 0,
@@ -772,11 +775,11 @@ class VideoProcessingApp {
                 estimated_wait_time: 0
             };
             
-            debugLog('Status da fila carregado', this.queueStatus);
+            debugLog('Status da fila processado:', this.queueStatus);
             this.updateQueueDisplay();
             
         } catch (error) {
-            debugLog('Erro ao carregar status da fila', error);
+            debugLog('=== ERRO AO CARREGAR STATUS DA FILA ===', error);
             
             // Em caso de erro, usar valores padrão
             this.queueStatus = {
@@ -786,13 +789,15 @@ class VideoProcessingApp {
                 estimated_wait_time: 0
             };
             
+            debugLog('Usando valores padrão para fila:', this.queueStatus);
             this.updateQueueDisplay();
         }
     }
 
     // Atualizar exibição do status da fila
     updateQueueDisplay() {
-        debugLog('Atualizando display da fila', this.queueStatus);
+        debugLog('=== ATUALIZANDO DISPLAY DA FILA ===');
+        debugLog('QueueStatus atual:', this.queueStatus);
         
         const activeProcessingEl = document.getElementById('activeProcessing');
         const waitingInQueueEl = document.getElementById('waitingInQueue');
@@ -804,6 +809,16 @@ class VideoProcessingApp {
             waitingInQueue: !!waitingInQueueEl,
             estimatedWait: !!estimatedWaitEl
         });
+
+        if (!activeProcessingEl || !waitingInQueueEl || !estimatedWaitEl) {
+            debugLog('❌ ELEMENTOS DA FILA NÃO ENCONTRADOS!');
+            debugLog('HTML Elements:', {
+                activeProcessing: activeProcessingEl,
+                waitingInQueue: waitingInQueueEl,
+                estimatedWait: estimatedWaitEl
+            });
+            return;
+        }
 
         // Valores da fila
         const processingCount = this.queueStatus?.processing_count || 0;
@@ -819,16 +834,12 @@ class VideoProcessingApp {
         // Atualizar elementos com valores
         if (activeProcessingEl) {
             activeProcessingEl.textContent = processingCount;
-            debugLog('Atualizando activeProcessing', processingCount);
-        } else {
-            debugLog('Elemento activeProcessing não encontrado');
+            debugLog('✅ Atualizou activeProcessing:', processingCount);
         }
         
         if (waitingInQueueEl) {
             waitingInQueueEl.textContent = queueLength;
-            debugLog('Atualizando waitingInQueue', queueLength);
-        } else {
-            debugLog('Elemento waitingInQueue não encontrado');
+            debugLog('✅ Atualizou waitingInQueue:', queueLength);
         }
         
         // Calcular tempo estimado (assumindo 1.5 minutos por vídeo)
@@ -836,10 +847,10 @@ class VideoProcessingApp {
         if (estimatedWaitEl) {
             const timeText = estimatedMinutes > 0 ? `${estimatedMinutes} min` : '0 min';
             estimatedWaitEl.textContent = timeText;
-            debugLog('Atualizando estimatedWait', timeText);
-        } else {
-            debugLog('Elemento estimatedWait não encontrado');
+            debugLog('✅ Atualizou estimatedWait:', timeText);
         }
+        
+        debugLog('=== DISPLAY DA FILA ATUALIZADO ===');
     }
 
     // Obter posição de um vídeo na fila

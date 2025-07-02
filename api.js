@@ -300,22 +300,33 @@ class ApiClient {
     // Obter status da fila de processamento
     async getQueueStatus() {
         try {
-            const response = await fetch(`${CONFIG.PROCESSING_SERVICE_URL}/queue/status`, {
+            debugLog('=== OBTENDO STATUS DA FILA ===');
+            const url = `${CONFIG.PROCESSING_SERVICE_URL}/queue/status`;
+            debugLog('URL da requisição:', url);
+            debugLog('Headers:', this.getHeaders());
+            
+            const response = await fetch(url, {
                 headers: this.getHeaders()
+            });
+
+            debugLog('Resposta HTTP:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok
             });
 
             if (response.ok) {
                 const data = await response.json();
-                debugLog('Status da fila', data);
+                debugLog('✅ Dados da fila recebidos:', data);
                 return data;
             } else {
                 // Se API não existir, retornar dados mock baseados em estatísticas reais
-                debugLog('API de fila não disponível, usando dados mock');
+                debugLog('❌ API de fila não disponível, usando dados mock');
                 return this.getMockQueueStatus();
             }
 
         } catch (error) {
-            debugLog('Erro ao obter status da fila', error);
+            debugLog('❌ ERRO ao obter status da fila:', error);
             // Retornar dados mock se não conseguir obter da API
             return this.getMockQueueStatus();
         }
