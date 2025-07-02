@@ -8,8 +8,7 @@ const CONFIG = {
     
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
-    MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB por arquivo
-    MAX_SIMULTANEOUS_FILES: 30, // Máximo 30 arquivos simultâneos
+    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB para produção
     ALLOWED_VIDEO_TYPES: [
         'video/mp4', 
         'video/avi', 
@@ -30,7 +29,7 @@ const CONFIG = {
     MAX_POLLING_ATTEMPTS: 120, // 10 minutos máximo
     
     // Configurações de produção
-    DEBUG: true, // Ativado para debugging
+    DEBUG: false,
     ENVIRONMENT: 'production',
     VERSION: '2.4.0',
     

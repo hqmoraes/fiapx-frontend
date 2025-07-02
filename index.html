@@ -68,6 +68,10 @@
                         <span id="processingVideos">0</span>
                     </div>
                     <div class="stat-card">
+                        <h3>Na Fila</h3>
+                        <span id="queueLength">0</span>
+                    </div>
+                    <div class="stat-card">
                         <h3>Total de Frames</h3>
                         <span id="totalFrames">0</span>
                     </div>
@@ -78,28 +82,52 @@
                 </div>
             </div>
 
+            <!-- Queue Status -->
+            <div class="queue-section">
+                <h2>📊 Status da Fila de Processamento</h2>
+                <div class="queue-info">
+                    <div class="queue-stats">
+                        <div class="queue-stat">
+                            <span class="queue-number" id="activeProcessing">0</span>
+                            <span class="queue-label">Processando Agora</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="queue-number" id="waitingInQueue">0</span>
+                            <span class="queue-label">Aguardando na Fila</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="queue-number" id="estimatedWait">0 min</span>
+                            <span class="queue-label">Tempo Estimado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Upload Section -->
             <div class="upload-section">
-                <h2>📤 Upload de Vídeo</h2>
+                <h2>📤 Upload de Vídeos</h2>
                 <div class="upload-area" id="uploadArea">
                     <div class="upload-form">
-                        <input type="file" id="videoFile" accept="video/*" style="display: none;">
+                        <input type="file" id="videoFile" accept="video/*" multiple style="display: none;">
                         <div class="upload-zone" id="uploadZone">
                             <div class="upload-icon">📹</div>
-                            <p>Clique ou arraste um vídeo aqui</p>
+                            <p>Clique ou arraste vídeos aqui</p>
                             <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
+                            <p class="upload-hint"><strong>Limite: 2MB por arquivo</strong> - Máximo 5 arquivos simultâneos</p>
+                            <p class="upload-hint">Processamento paralelo automático</p>
                         </div>
-                        <button id="uploadBtn" class="btn btn-primary" style="display: none;">🚀 Processar Vídeo</button>
+                        <div id="selectedFiles" class="selected-files" style="display: none;"></div>
+                        <div class="upload-buttons">
+                            <button id="uploadBtn" class="btn btn-primary" style="display: none;">🚀 Processar Vídeos</button>
+                            <button id="clearBtn" class="btn btn-secondary" style="display: none;">🗑️ Limpar</button>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Upload Progress -->
                 <div class="progress-section" id="progressSection" style="display: none;">
-                    <h3>⏳ Processando vídeo...</h3>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p id="progressText">Iniciando upload...</p>
+                    <h3>⏳ Processando vídeos...</h3>
+                    <div id="uploadsProgress"></div>
                 </div>
             </div>
 
