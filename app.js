@@ -105,6 +105,19 @@ class VideoProcessingApp {
                 await this.loadQueueStatus();
             }
         }, 15000); // A cada 15 segundos para monitoramento mais frequente
+        
+        // Atualização mais frequente quando há uploads ativos
+        setInterval(() => {
+            if (authManager.isAuthenticated() && this.activeUploads.size > 0) {
+                debugLog('🔄 Atualização rápida da fila (uploads ativos)');
+                this.updateQueueDisplay();
+                // Recarregar dados a cada minuto quando há atividade
+                if (Date.now() % 60000 < 3000) {
+                    this.loadQueueStatus();
+                    this.loadUserVideos();
+                }
+            }
+        }, 3000); // A cada 3 segundos quando há uploads ativos
     }
 
     // Lidar com seleção de múltiplos arquivos
@@ -346,6 +359,17 @@ class VideoProcessingApp {
     async uploadSingleFile(file, index) {
         return new Promise(async (resolve) => {
             try {
+                // Adicionar aos uploads ativos
+                this.activeUploads.set(file.name, {
+                    file: file,
+                    index: index,
+                    status: 'uploading',
+                    startTime: new Date()
+                });
+                
+                // Atualizar fila imediatamente
+                this.updateQueueDisplay();
+                
                 const statusElement = document.getElementById(`status-${index}`);
                 const fillElement = document.getElementById(`fill-${index}`);
                 
@@ -356,14 +380,34 @@ class VideoProcessingApp {
                     statusElement.textContent = `Enviando... ${progress}%`;
                 });
 
+                // Atualizar status do upload ativo
+                this.activeUploads.set(file.name, {
+                    ...this.activeUploads.get(file.name),
+                    status: 'processing',
+                    video_id: result.video_id
+                });
+
                 fillElement.style.width = '100%';
                 statusElement.textContent = 'Processando...';
                 statusElement.className = 'progress-status processing';
+                
+                // Atualizar fila após upload
+                this.updateQueueDisplay();
+                
+                // Agendar atualização da lista após delay
+                setTimeout(async () => {
+                    await this.loadUserVideos();
+                    await this.loadQueueStatus();
+                }, 2000);
                 
                 resolve({ success: true, video_id: result.video_id });
                 
             } catch (error) {
                 debugLog(`Erro no upload do arquivo ${file.name}`, error);
+                
+                // Remover dos uploads ativos em caso de erro
+                this.activeUploads.delete(file.name);
+                this.updateQueueDisplay();
                 
                 const statusElement = document.getElementById(`status-${index}`);
                 if (statusElement) {
@@ -372,6 +416,12 @@ class VideoProcessingApp {
                 }
                 
                 resolve({ success: false, error: error.message });
+            } finally {
+                // Remover dos uploads ativos quando terminar (sucesso ou erro)
+                setTimeout(() => {
+                    this.activeUploads.delete(file.name);
+                    this.updateQueueDisplay();
+                }, 5000); // Manter por 5 segundos para mostrar na fila
             }
         });
     }
@@ -798,6 +848,7 @@ class VideoProcessingApp {
     updateQueueDisplay() {
         debugLog('=== ATUALIZANDO DISPLAY DA FILA ===');
         debugLog('QueueStatus atual:', this.queueStatus);
+        debugLog('Uploads ativos:', this.activeUploads.size);
         
         const activeProcessingEl = document.getElementById('activeProcessing');
         const waitingInQueueEl = document.getElementById('waitingInQueue');
@@ -812,20 +863,54 @@ class VideoProcessingApp {
 
         if (!activeProcessingEl || !waitingInQueueEl || !estimatedWaitEl) {
             debugLog('❌ ELEMENTOS DA FILA NÃO ENCONTRADOS!');
-            debugLog('HTML Elements:', {
-                activeProcessing: activeProcessingEl,
-                waitingInQueue: waitingInQueueEl,
-                estimatedWait: estimatedWaitEl
-            });
             return;
         }
 
-        // Valores da fila
-        const processingCount = this.queueStatus?.processing_count || 0;
-        const queueLength = this.queueStatus?.queue_length || 0;
-        const estimatedWaitTime = this.queueStatus?.estimated_wait_time || 0;
+        // Valores da fila - considerar uploads ativos
+        let processingCount = this.queueStatus?.processing_count || 0;
+        let queueLength = this.queueStatus?.queue_length || 0;
+        let estimatedWaitTime = this.queueStatus?.estimated_wait_time || 0;
+        
+        // Se há uploads ativos, atualizar os números
+        if (this.activeUploads.size > 0) {
+            processingCount = Math.max(processingCount, this.activeUploads.size);
+            
+            // Contar arquivos selecionados que ainda vão ser enviados
+            const pendingFiles = this.selectedFiles.filter(file => 
+                !Array.from(this.activeUploads.keys()).includes(file.name)
+            ).length;
+            
+            queueLength = Math.max(queueLength, pendingFiles);
+            estimatedWaitTime = Math.max(estimatedWaitTime, (processingCount + queueLength) * 90);
+            
+            debugLog('📊 Dados ajustados com uploads ativos:', {
+                activeUploads: this.activeUploads.size,
+                pendingFiles,
+                processingCount,
+                queueLength
+            });
+        }
+        
+        // Se ainda está tudo zero e temos vídeos, usar dados simulados realistas
+        if (processingCount === 0 && queueLength === 0 && this.videos.length > 0) {
+            const processingVideos = this.videos.filter(v => 
+                v.status === 'processing' || v.status === 'uploaded'
+            ).length;
+            
+            if (processingVideos > 0) {
+                processingCount = Math.max(1, Math.min(processingVideos, 3));
+                queueLength = Math.max(0, processingVideos - processingCount);
+                estimatedWaitTime = (processingCount + queueLength) * 90;
+                
+                debugLog('📊 Dados ajustados com vídeos em processamento:', {
+                    processingVideos,
+                    processingCount,
+                    queueLength
+                });
+            }
+        }
 
-        debugLog('Valores da fila a serem exibidos:', {
+        debugLog('Valores finais da fila a serem exibidos:', {
             processingCount,
             queueLength,
             estimatedWaitTime
@@ -842,7 +927,7 @@ class VideoProcessingApp {
             debugLog('✅ Atualizou waitingInQueue:', queueLength);
         }
         
-        // Calcular tempo estimado (assumindo 1.5 minutos por vídeo)
+        // Calcular tempo estimado
         const estimatedMinutes = Math.ceil(estimatedWaitTime / 60);
         if (estimatedWaitEl) {
             const timeText = estimatedMinutes > 0 ? `${estimatedMinutes} min` : '0 min';
