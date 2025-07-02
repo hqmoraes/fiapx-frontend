@@ -8,7 +8,8 @@ const CONFIG = {
     
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
-    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB para produção
+    MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB por arquivo
+    MAX_SIMULTANEOUS_FILES: 30, // Máximo 30 arquivos simultâneos
     ALLOWED_VIDEO_TYPES: [
         'video/mp4', 
         'video/avi', 

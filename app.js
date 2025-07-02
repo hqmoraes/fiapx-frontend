@@ -122,7 +122,7 @@ class VideoProcessingApp {
                 return;
             }
 
-            // Validar tamanho (2MB)
+            // Validar tamanho (10MB)
             if (file.size > CONFIG.MAX_FILE_SIZE) {
                 const maxSizeMB = (CONFIG.MAX_FILE_SIZE / (1024 * 1024)).toFixed(1);
                 const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -144,15 +144,15 @@ class VideoProcessingApp {
             }
         });
 
-        // Verificar limite total de arquivos (máximo 5 para processamento paralelo)
+        // Verificar limite total de arquivos (máximo 30 para processamento paralelo)
         const totalFiles = this.selectedFiles.length + validFiles.length;
-        if (totalFiles > 5) {
-            const allowedCount = 5 - this.selectedFiles.length;
+        if (totalFiles > CONFIG.MAX_SIMULTANEOUS_FILES) {
+            const allowedCount = CONFIG.MAX_SIMULTANEOUS_FILES - this.selectedFiles.length;
             if (allowedCount > 0) {
                 validFiles.splice(allowedCount);
-                errors.push(`Limite de 5 arquivos simultâneos. Apenas ${allowedCount} arquivo(s) adicionado(s).`);
+                errors.push(`Limite de ${CONFIG.MAX_SIMULTANEOUS_FILES} arquivos simultâneos. Apenas ${allowedCount} arquivo(s) adicionado(s).`);
             } else {
-                errors.push('Limite de 5 arquivos simultâneos atingido. Remova alguns arquivos primeiro.');
+                errors.push(`Limite de ${CONFIG.MAX_SIMULTANEOUS_FILES} arquivos simultâneos atingido. Remova alguns arquivos primeiro.`);
                 validFiles.length = 0;
             }
         }
@@ -186,7 +186,7 @@ class VideoProcessingApp {
                 <div class="upload-icon">📹</div>
                 <p>Clique ou arraste vídeos aqui</p>
                 <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
-                <p class="upload-hint"><strong>Limite: 2MB por arquivo</strong> - Máximo 5 arquivos simultâneos</p>
+                <p class="upload-hint"><strong>Limite: 10MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
                 <p class="upload-hint">Processamento paralelo automático</p>
             `;
             return;
@@ -393,7 +393,7 @@ class VideoProcessingApp {
             <div class="upload-icon">📹</div>
             <p>Clique ou arraste vídeos aqui</p>
             <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
-            <p class="upload-hint"><strong>Limite: 2MB por arquivo</strong> - Máximo 5 arquivos simultâneos</p>
+            <p class="upload-hint"><strong>Limite: 10MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
             <p class="upload-hint">Processamento paralelo automático</p>
         `;
 
