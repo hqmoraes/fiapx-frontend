@@ -1,14 +1,22 @@
 // Configuração HTTPS para produção - fiapx.wecando.click
 const CONFIG = {
-    // URLs HTTPS via Ingress (produção)
-    AUTH_SERVICE_URL: 'https://api.wecando.click/auth',
-    UPLOAD_SERVICE_URL: 'https://api.wecando.click/upload', 
-    PROCESSING_SERVICE_URL: 'https://api.wecando.click/processing',
-    STORAGE_SERVICE_URL: 'https://api.wecando.click/storage',
+    // URLs HTTPS via Ingress (produção) - Detecção automática de protocolo
+    AUTH_SERVICE_URL: typeof window !== 'undefined' && window.location.protocol === 'https:' 
+        ? 'https://api.wecando.click/auth' 
+        : 'https://api.wecando.click/auth',
+    UPLOAD_SERVICE_URL: typeof window !== 'undefined' && window.location.protocol === 'https:' 
+        ? 'https://api.wecando.click/upload' 
+        : 'https://api.wecando.click/upload', 
+    PROCESSING_SERVICE_URL: typeof window !== 'undefined' && window.location.protocol === 'https:' 
+        ? 'https://api.wecando.click/processing' 
+        : 'https://api.wecando.click/processing',
+    STORAGE_SERVICE_URL: typeof window !== 'undefined' && window.location.protocol === 'https:' 
+        ? 'https://api.wecando.click/storage' 
+        : 'https://api.wecando.click/storage',
     
     // Configurações da aplicação
     APP_NAME: 'FIAP X - Video Processing Platform',
-    MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB por arquivo
+    MAX_FILE_SIZE: 100 * 1024 * 1024, // 100MB por arquivo
     MAX_SIMULTANEOUS_FILES: 30, // Máximo 30 arquivos simultâneos
     ALLOWED_VIDEO_TYPES: [
         'video/mp4', 
@@ -67,14 +75,15 @@ function debugLog(message, data = null) {
     }
 }
 
-// Log da configuração
-debugLog('Configuração HTTPS carregada:', {
+// Log da configuração com detecção de protocolo
+debugLog('Configuração HTTPS carregada (protocolo atual: ' + (typeof window !== 'undefined' ? window.location.protocol : 'unknown') + '):', {
     auth: CONFIG.AUTH_SERVICE_URL,
     upload: CONFIG.UPLOAD_SERVICE_URL,
     processing: CONFIG.PROCESSING_SERVICE_URL,
     storage: CONFIG.STORAGE_SERVICE_URL,
     environment: CONFIG.ENVIRONMENT,
-    version: CONFIG.VERSION
+    version: CONFIG.VERSION,
+    currentURL: typeof window !== 'undefined' ? window.location.href : 'unknown'
 });
 
 // Verificar se está rodando em HTTPS

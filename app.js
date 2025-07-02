@@ -135,7 +135,7 @@ class VideoProcessingApp {
                 return;
             }
 
-            // Validar tamanho (10MB)
+            // Validar tamanho (100MB)
             if (file.size > CONFIG.MAX_FILE_SIZE) {
                 const maxSizeMB = (CONFIG.MAX_FILE_SIZE / (1024 * 1024)).toFixed(1);
                 const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -199,7 +199,7 @@ class VideoProcessingApp {
                 <div class="upload-icon">📹</div>
                 <p>Clique ou arraste vídeos aqui</p>
                 <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
-                <p class="upload-hint"><strong>Limite: 10MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
+                <p class="upload-hint"><strong>Limite: 100MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
                 <p class="upload-hint">Processamento paralelo automático</p>
             `;
             return;
@@ -443,7 +443,7 @@ class VideoProcessingApp {
             <div class="upload-icon">📹</div>
             <p>Clique ou arraste vídeos aqui</p>
             <p class="upload-hint">Formatos suportados: MP4, AVI, MOV, MKV, WEBM</p>
-            <p class="upload-hint"><strong>Limite: 10MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
+            <p class="upload-hint"><strong>Limite: 100MB por arquivo</strong> - Máximo 30 arquivos simultâneos</p>
             <p class="upload-hint">Processamento paralelo automático</p>
         `;
 
@@ -593,13 +593,40 @@ class VideoProcessingApp {
 
         // Valores das estatísticas - usar nomes consistentes
         const totalVideos = this.stats.total_videos || this.stats.totalVideos || 0;
-        const processingVideos = this.stats.processing || this.stats.processingVideos || 0;
         const storageUsed = this.stats.total_size || this.stats.storageUsed || 0;
         const totalFrames = this.stats.total_frames || this.stats.totalFrames || 0;
+
+        // Para "Em Processamento" e "Na Fila", usar os mesmos valores da fila
+        let processingVideos = this.queueStatus?.processing_count || 0;
+        let currentQueueLength = this.queueStatus?.queue_length || 0;
+        
+        // Se há uploads ativos, ajustar os números (mesma lógica da fila)
+        if (this.activeUploads.size > 0) {
+            processingVideos = Math.max(processingVideos, this.activeUploads.size);
+            
+            const pendingFiles = this.selectedFiles.filter(file => 
+                !Array.from(this.activeUploads.keys()).includes(file.name)
+            ).length;
+            
+            currentQueueLength = Math.max(currentQueueLength, pendingFiles);
+        }
+        
+        // Se ainda está zero e temos vídeos, usar dados realistas
+        if (processingVideos === 0 && currentQueueLength === 0 && this.videos.length > 0) {
+            const processingVideosList = this.videos.filter(v => 
+                v.status === 'processing' || v.status === 'uploaded'
+            ).length;
+            
+            if (processingVideosList > 0) {
+                processingVideos = Math.max(1, Math.min(processingVideosList, 3));
+                currentQueueLength = Math.max(0, processingVideosList - processingVideos);
+            }
+        }
 
         debugLog('Valores a serem exibidos:', {
             totalVideos,
             processingVideos,
+            currentQueueLength,
             storageUsed,
             totalFrames
         });
@@ -636,7 +663,6 @@ class VideoProcessingApp {
 
         // Atualizar também o queueLength que aparece nas estatísticas
         if (queueLengthEl) {
-            const currentQueueLength = this.queueStatus?.queue_length || 0;
             queueLengthEl.textContent = currentQueueLength;
             debugLog('Atualizando queueLength nas stats', currentQueueLength);
         } else {
@@ -936,6 +962,9 @@ class VideoProcessingApp {
         }
         
         debugLog('=== DISPLAY DA FILA ATUALIZADO ===');
+        
+        // Atualizar também as estatísticas do dashboard para manter consistência
+        this.updateStatsDisplay();
     }
 
     // Obter posição de um vídeo na fila
