@@ -8,16 +8,9 @@ class AuthManager {
     // Fazer login
     async login(email, password) {
         try {
-            debugLog('Tentando fazer login', { email, authURL: CONFIG.AUTH_SERVICE_URL });
+            debugLog('Tentando fazer login', { email });
             
-            // Garantir que está usando HTTPS se a página for HTTPS
-            let loginURL = `${CONFIG.AUTH_SERVICE_URL}/login`;
-            if (window.location.protocol === 'https:' && loginURL.startsWith('http:')) {
-                loginURL = loginURL.replace('http:', 'https:');
-                debugLog('Forçando HTTPS para login:', loginURL);
-            }
-            
-            const response = await fetch(loginURL, {
+            const response = await fetch(`${CONFIG.AUTH_SERVICE_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
